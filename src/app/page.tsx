@@ -24,7 +24,6 @@ export default function TodoBox() {
         <div className="p-5 border-2 border-black rounded">
           <AddTask/>
           <ProgressBar/>
-          <AddedTask/>
           <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-600"></hr>
         </div>
       </div>
@@ -54,11 +53,11 @@ function ProgressBar() {
 };
 
 // Layout of added task
-function AddedTask() {
+function AddedTask(task: Task, checked: boolean) {
   return (
     <div className="w-12/12 flex items-center space-x-2">
       <input type="checkbox" value="" className="w-6 h-6 text-white-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-600 dark:focus:ring-gray-800 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
-      <label className="text-xl font-medium text-black">Doing the task boss...</label>
+      <label className="text-xl font-medium text-black">{task.text}</label>
     </div>
   );
 };
