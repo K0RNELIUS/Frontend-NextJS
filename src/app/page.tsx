@@ -12,21 +12,33 @@ export default function TodoBox() {
     const newTask = new Task(idCounter, taskText, false, 0); // supposed the same label for all
     setTasks((prevTasks) => [...prevTasks, newTask]);
     setIdCounter(idCounter + 1);
-  }
+  };
 
   const changeProgress = () => {
     const completedTasks = tasks.filter(task => task.checked).length;
     const totalTasks = tasks.length;
     const percentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
     setProgress(percentage);
-  }
+  };
 
   const statusChange = (taskId: number) => {
     setTasks((tasks) => 
       tasks.map((task) =>
         task.id === taskId ? { ...task, checked: !task.checked } : task
-      ) 
-    )
+      )
+    );
+  };
+
+  const getDone = () => {
+    return tasks.filter(task => task.checked);
+  }
+
+  const getPending = () => {
+    return tasks.filter(task => !task.checked)
+  }
+
+  const deleteDone = () => {
+    setTasks(getPending);
   };
 
   useEffect(() => {
@@ -43,6 +55,7 @@ export default function TodoBox() {
           <ProgressBar percentage={progress} />
           <ListTasks OnStatusChange={statusChange} tasks={tasks}/>
           <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-600"></hr>
+          <OptionsLine onDeleteDone={deleteDone}/>
         </div>
       </div>
     </div>
@@ -58,13 +71,13 @@ function AddTask({ onAddTask }: { onAddTask: (taskText: string) => void}) {
     if (taskText.trim() !== '') {
       onAddTask(taskText);
       setTaskText('');
-    }
+    };
   };
 
   return (
     <div className="w-12/12 flex space-x-4">
       <input onChange={(e) => setTaskText(e.target.value)} value={taskText} className="w-11/12 h-2/12 appearance-none border-2 border-black rounded" type="text" placeholder="Send the task boss..."/>
-      <button onClick={handleAdd} className="w-1/12 h-2/12 appearance-none border-2 border-black rounded bg-black text-white">Arroz  </button>
+      <button onClick={handleAdd} className="w-1/12 h-2/12 appearance-none border-2 border-black rounded bg-black text-white">Add</button>
     </div>  
   );
 }; 
@@ -76,7 +89,7 @@ function ProgressBar({percentage}: { percentage: number }) {
     <>
       <div className="w-full mt-2 bg-gray-600 rounded-full h-1.5 mb-4 dark:bg-gray-200">
         <div style = {{width: `${percentage}%`}}
-          className={` bg-gray-200 h-1.5 rounded-full dark:bg-gray-600`}>Teste</div>
+          className={` bg-gray-200 h-1.5 rounded-full dark:bg-gray-600`}></div>
       </div>
     </>
   );
@@ -102,5 +115,21 @@ function ListTasks({ tasks, OnStatusChange }: { OnStatusChange: (taskId: number)
     <>
       {listTasks}
     </>
+  );
+};
+
+function OptionsLine({ onDeleteDone }: { onDeleteDone: () => void}) {
+  
+
+  return (
+    <div className="w-12/12 flex items-center justify-center space-x-12">
+      <p>5 Tasks Pending</p>
+      <div className="space-x-3">
+        <a href="">All</a>
+        <a href="">Pending</a>
+        <a href="">Done</a>
+      </div>
+      <a onClick={(e) => onDeleteDone()} className="px-4 cursor-pointer border-2 border-black rounded">Clean Completed</a>
+  </div>
   );
 };
