@@ -15,6 +15,7 @@ export default function TodoBox() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [idCounter, setIdCounter] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [filter, setFilter] = useState('all');
   
   const addTask = (taskText: string) => {
     const newTask = new Task(idCounter, taskText, false, 0); // supposed the same label for all
@@ -37,8 +38,19 @@ export default function TodoBox() {
     );
   };
 
+  const filterTasks = () => {
+    switch (filter) {
+      case "pending":
+        return getPending(tasks);
+      case "done":
+        return getDone(tasks);
+      default:
+        return tasks;
+    }
+  }
+
   const deleteDone = () => {
-    setTasks(getPending);
+    setTasks(getPending(tasks));
   };
 
   useEffect(() => {
@@ -49,13 +61,13 @@ export default function TodoBox() {
   return (
     <div className="h-screen flex items-center justify-center">
       <div className="w-8/12 h-7/12 p-4">
-        <h1 className="text-3xl">Todo!</h1>
+        <h1 className="text-4xl">Todo!</h1>
         <div className="p-5 border-2 border-black rounded">
           <AddTask onAddTask={addTask} /> 
           <ProgressBar percentage={progress} />
-          <ListTasks OnStatusChange={statusChange} tasks={tasks}/>
+          <ListTasks OnStatusChange={statusChange} tasks={filterTasks()}/>
           <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-600"></hr>
-          <OptionsLine tasks={tasks} OnDeleteDone={deleteDone}/>
+          <OptionsLine tasks={tasks} filter={filter} OnFilterChange={setFilter} OnDeleteDone={deleteDone}/>
         </div>
       </div>
     </div>
@@ -75,9 +87,9 @@ function AddTask({ onAddTask }: { onAddTask: (taskText: string) => void}) {
   };
 
   return (
-    <div className="w-12/12 flex space-x-4">
-      <input onChange={(e) => setTaskText(e.target.value)} value={taskText} className="w-11/12 h-2/12 appearance-none border-2 border-black rounded" type="text" placeholder="Send the task boss..."/>
-      <button onClick={handleAdd} className="w-1/12 h-2/12 appearance-none border-2 border-black rounded bg-black text-white">Add</button>
+    <div className="w-12/12 flex space-x-4 text-xl">
+      <input onChange={(e) => setTaskText(e.target.value)} value={taskText} className="w-11/12 appearance-none border-2 border-black rounded" type="text" placeholder="Send the task boss..."/>
+      <button onClick={handleAdd} className="w-1/12 appearance-none border-2 border-black rounded bg-black text-white">Add</button>
     </div>  
   );
 }; 
@@ -118,18 +130,22 @@ function ListTasks({ tasks, OnStatusChange }: { OnStatusChange: (taskId: number)
   );
 };
 
-function OptionsLine({ tasks, OnDeleteDone }: { OnDeleteDone: () => void; tasks: Task[]}) {
+function OptionsLine({ tasks, filter, OnFilterChange, OnDeleteDone }: { tasks: Task[]; filter: string; OnFilterChange: (filter: string) => void; OnDeleteDone: () => void}) {
   
 
   return (
     <div className="w-12/12 flex items-center justify-center space-x-12">
       <p>Tasks pending: {getPending(tasks).length}</p>
-      <div className="space-x-3">
-        <a href="">All</a>
-        <a href="">Pending</a>
-        <a href="">Done</a>
-      </div>
-      <a onClick={(e) => OnDeleteDone()} className="px-4 cursor-pointer border-2 border-black rounded">Clean Completed</a>
+      <button onClick={() => OnFilterChange("all")} className={`${
+        filter === "all" ? 'border-b-2 border-black' : ''
+      }`}>All</button>
+      <button onClick={() => OnFilterChange("pending")} className={`${
+        filter === "pending" ? 'border-b-2 border-black' : ''
+      }`}>Pending</button>
+      <button onClick={() => OnFilterChange("done")} className={`${
+        filter === "done" ? 'border-b-2 border-black' : ''
+      }`}>Done</button>
+      <button onClick={() => OnDeleteDone()} className="px-4 cursor-pointer border-2 border-black rounded">Clean Completed</button>
   </div>
   );
 };
