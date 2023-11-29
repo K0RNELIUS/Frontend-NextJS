@@ -3,6 +3,14 @@
 import { useEffect, useState } from 'react';
 import { Task } from './task'; // Interface de tasks as is in the backend with NestJS
 
+const getDone = (tasks: Task[]) => {
+  return tasks.filter(task => task.checked);
+}
+
+const getPending = (tasks: Task[]) => {
+  return tasks.filter(task => !task.checked)
+}
+
 export default function TodoBox() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [idCounter, setIdCounter] = useState(0);
@@ -29,14 +37,6 @@ export default function TodoBox() {
     );
   };
 
-  const getDone = () => {
-    return tasks.filter(task => task.checked);
-  }
-
-  const getPending = () => {
-    return tasks.filter(task => !task.checked)
-  }
-
   const deleteDone = () => {
     setTasks(getPending);
   };
@@ -55,7 +55,7 @@ export default function TodoBox() {
           <ProgressBar percentage={progress} />
           <ListTasks OnStatusChange={statusChange} tasks={tasks}/>
           <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-600"></hr>
-          <OptionsLine onDeleteDone={deleteDone}/>
+          <OptionsLine tasks={tasks} OnDeleteDone={deleteDone}/>
         </div>
       </div>
     </div>
@@ -118,18 +118,18 @@ function ListTasks({ tasks, OnStatusChange }: { OnStatusChange: (taskId: number)
   );
 };
 
-function OptionsLine({ onDeleteDone }: { onDeleteDone: () => void}) {
+function OptionsLine({ tasks, OnDeleteDone }: { OnDeleteDone: () => void; tasks: Task[]}) {
   
 
   return (
     <div className="w-12/12 flex items-center justify-center space-x-12">
-      <p>5 Tasks Pending</p>
+      <p>Tasks pending: {getPending(tasks).length}</p>
       <div className="space-x-3">
         <a href="">All</a>
         <a href="">Pending</a>
         <a href="">Done</a>
       </div>
-      <a onClick={(e) => onDeleteDone()} className="px-4 cursor-pointer border-2 border-black rounded">Clean Completed</a>
+      <a onClick={(e) => OnDeleteDone()} className="px-4 cursor-pointer border-2 border-black rounded">Clean Completed</a>
   </div>
   );
 };
